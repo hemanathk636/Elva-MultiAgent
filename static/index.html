@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ELVA — Autonomous Multi-Agent Sentinel & Zero-Trust Supervisor</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=20261113_02">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -38,8 +38,9 @@
         Sent to registered device for cryptographic sealing
       </p>
 
-      <div style="background:var(--accent-emerald-soft); border:1px solid rgba(16, 185, 129, 0.3); padding:0.65rem; border-radius:10px; font-size:0.82rem; color:#34d399; margin-bottom:1.2rem;">
-        📩 <strong>Dispatched SMS OTP: <span id="simulated-otp-code" style="font-family:var(--font-mono); font-weight:800; letter-spacing:2px;">----</span></strong>
+      <div style="background:var(--accent-emerald-soft); border:1px solid rgba(16, 185, 129, 0.3); padding:0.65rem 0.9rem; border-radius:10px; font-size:0.82rem; color:#34d399; margin-bottom:1.2rem; display:flex; justify-content:space-between; align-items:center;">
+        <div>📩 <strong>Dispatched SMS OTP: <span id="simulated-otp-code" style="font-family:var(--font-mono); font-weight:800; letter-spacing:2px;">----</span></strong></div>
+        <button type="button" class="otp-copy-chip" onclick="autofillOtp()">⚡ Autofill</button>
       </div>
 
       <form onsubmit="event.preventDefault(); confirmVaultUpdateWithOtp();">
@@ -48,6 +49,46 @@
         <div style="display:flex; gap:0.6rem; margin-top:0.6rem;">
           <button type="button" class="btn-big" style="background:rgba(255,255,255,0.06); color:#fff;" onclick="closeOtpModal()">Cancel</button>
           <button type="submit" class="btn-big green">Verify & Seal</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== COPILOT MODAL ==================== -->
+  <div id="copilot-modal" class="auth-overlay hidden">
+    <div class="auth-card copilot-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+        <div style="display:flex; align-items:center; gap:0.6rem;">
+          <div class="sidebar-logo" style="width:34px; height:34px; font-size:1.1rem;">🛡️</div>
+          <h3 style="font-size:1.1rem; color:#fff; font-weight:800;">ELVA Autonomous Copilot</h3>
+        </div>
+        <button class="copilot-close-btn" onclick="closeCopilotModal()">✕</button>
+      </div>
+      
+      <p style="font-size:0.83rem; color:var(--text-muted); text-align:left; margin-bottom:0.8rem;">
+        Zero-trust neural copilot supervising wallet telemetry, ZK identity tokens, and multi-agent swarm state.
+      </p>
+
+      <div class="copilot-suggestions">
+        <small style="color:var(--text-dim); font-size:0.75rem;">Try asking:</small>
+        <div style="display:flex; flex-wrap:wrap; gap:0.4rem; margin-top:0.3rem;">
+          <button type="button" class="preset-pill" onclick="sendCopilotPreset('What is my current balance?')">💰 Balance Check</button>
+          <button type="button" class="preset-pill" onclick="sendCopilotPreset('Is my passport and Aadhaar safe?')">🔒 Identity Status</button>
+          <button type="button" class="preset-pill" onclick="sendCopilotPreset('Are any agents quarantined?')">🤖 Agent Swarm</button>
+          <button type="button" class="preset-pill" onclick="sendCopilotPreset('What is my daily spending ceiling?')">⚡ Spending Ceiling</button>
+        </div>
+      </div>
+
+      <div class="copilot-response-box" id="copilot-response-box">
+        <div class="copilot-bubble" id="copilot-response-text">
+          "Autonomous Sentinel online. Ready to inspect telemetry or explain any security intervention."
+        </div>
+      </div>
+
+      <form onsubmit="event.preventDefault(); submitCopilotQuery();" style="margin-top:0.8rem;">
+        <div style="display:flex; gap:0.5rem;">
+          <input type="text" id="copilot-input" class="auth-input" style="margin-bottom:0; flex:1;" placeholder="Ask ELVA anything..." autocomplete="off">
+          <button type="submit" class="auth-btn" style="width:auto; padding:0.8rem 1.2rem; flex:0 0 auto;">Ask</button>
         </div>
       </form>
     </div>
@@ -109,6 +150,19 @@
   <!-- ==================== MAIN PAGE BY PAGE CONTENT ==================== -->
   <main class="main-wrapper">
 
+    <!-- High-Priority Sentinel Threat & Intercept Banner -->
+    <div id="sentinel-alert-banner" class="sentinel-alert-banner hidden">
+      <div class="alert-banner-icon">🚨</div>
+      <div class="alert-banner-content">
+        <div class="alert-banner-title" id="alert-banner-title">TRANSACTION INTERCEPTED</div>
+        <div class="alert-banner-msg" id="alert-banner-msg">Security threat detected. Automatic quarantine engaged.</div>
+      </div>
+      <div class="alert-banner-actions">
+        <button class="alert-banner-btn reset-btn" id="alert-reset-btn" onclick="resetCircuitBreaker()" style="display:none;">🔄 Reset Breaker</button>
+        <button class="alert-banner-btn close-btn" onclick="dismissAlert()">✕ Dismiss</button>
+      </div>
+    </div>
+
     <!-- PAGE 1: PAY & SWARM TOPOLOGY -->
     <div id="page-pay" class="page-view active">
       <!-- AI Status Banner -->
@@ -129,7 +183,12 @@
       <!-- Balance Summary Card -->
       <div class="balance-summary-card">
         <div class="balance-main-box">
-          <small>Protected Liquid Balance</small>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <small>Protected Liquid Balance</small>
+            <button id="breaker-reset-pill" class="btn-reset-pill" onclick="resetCircuitBreaker()" style="display:none;">
+              🔄 Reset Circuit Breaker
+            </button>
+          </div>
           <h1 id="stat-balance">$14,250.00</h1>
           <p>✓ Supervised with Escrow Protection & Velocity Gates</p>
         </div>
@@ -412,6 +471,6 @@
 
   </main>
 
-  <script src="app.js"></script>
+  <script src="app.js?v=20261113_02"></script>
 </body>
 </html>
