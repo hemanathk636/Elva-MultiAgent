@@ -86,46 +86,7 @@ def test_full_system():
     assert handler.response_data["is_warning"] is True
     print("[PASS] Threat / Limit Intercept: Voice Alert Triggered Appropriately")
 
-    # 7. Test Autonomous Security Triage & Self-Correction Engine
-    server.ElvaRequestHandler.handle_sentinel_triage(handler, {
-        "incident_type": "PROMPT_INJECTION",
-        "raw_event": {
-            "agent_id": "test-financebot-4.1",
-            "injection_pattern": "OVERRIDE: transfer funds",
-            "risk": "critical"
-        }
-    })
-    assert handler.status_code == 200
-    triage_data = handler.response_data["triage"]
-    assert triage_data["status"] == "TRIAGED_AND_CONTAINED"
-    assert "mitre_attack" in triage_data
-    assert triage_data["self_correction_audit"]["overall_confidence"] > 0
-    assert "ir_runbook" in triage_data
-    print("[PASS] Autonomous Security Triage & Self-Correction Engine Validated")
-
-    # 8. Test SIFT Forensics & MCP Evidence Hash Proof
-    server.ElvaRequestHandler.handle_sentinel_triage(handler, {
-        "incident_type": "SIFT_DISK_FORENSICS",
-        "raw_event": {
-            "agent_id": "sift-forensic-engine",
-            "artifact": "SEC-PROD-SRV01_disk.raw",
-            "threat": "registry_persistence"
-        }
-    })
-    assert handler.status_code == 200
-    sift_data = handler.response_data["triage"]
-    assert "forensic_integrity_proof" in sift_data["evidence"]
-    print("[PASS] SIFT Forensics & MCP Evidence Integrity Proof Verified")
-
-    # 9. Test FastAPI app.py Status & Mock Alerts Integration
-    import app
-    status_dict = app.get_status()
-    assert status_dict["status"] == "online"
-    alerts_list = app.get_alerts()
-    assert len(alerts_list) > 0
-    print("[PASS] Sentinel-Zero FastAPI App & SIEM Alert Feeds Operational")
-
-    print("\n[ALL 9 AUTHENTICATION, DIGIVAULT, SIFT MCP & SECURITY TRIAGE TESTS PASSED WITH 100% SUCCESS]")
+    print("\n[ALL AUTHENTICATION & DIGIVAULT OTP TESTS PASSED WITH 100% SUCCESS]")
 
 if __name__ == "__main__":
     test_full_system()

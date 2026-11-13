@@ -19,7 +19,6 @@ from datetime import datetime, timezone
 
 from database import init_db, get_connection
 from offline_brain import brain
-from sentinel_triage import triage_engine
 
 PORT = 8088
 STATIC_DIR = os.path.join(os.path.dirname(__file__), "static")
@@ -63,8 +62,6 @@ class ElvaRequestHandler(http.server.SimpleHTTPRequestHandler):
             self.handle_vault()
         elif path == "/api/auth/me":
             self.handle_auth_me()
-        elif path == "/api/sentinel/triage":
-            self.handle_sentinel_triage()
         else:
             if path == "/" or path == "":
                 self.path = "/index.html"
@@ -100,8 +97,6 @@ class ElvaRequestHandler(http.server.SimpleHTTPRequestHandler):
             self.handle_voice_verify(body)
         elif path == "/api/wallet/reset":
             self.handle_wallet_reset()
-        elif path == "/api/sentinel/triage":
-            self.handle_sentinel_triage(body)
         else:
             self.send_json({"error": "Endpoint not found", "path": path}, 404)
 
@@ -431,25 +426,10 @@ class ElvaRequestHandler(http.server.SimpleHTTPRequestHandler):
             amt = 1200.0
             reason = "Synthetic voice failed biological challenge."
 
-        # Map attack_type to Sentinel-Zero triage incident
-        type_mapping = {
-            "prompt_injection": "PROMPT_INJECTION",
-            "runaway_loop": "DYNAMIC_PRICING_LOOP",
-            "voice_clone": "DEEPFAKE_VOICE_CLONE"
-        }
-        sentinel_type = type_mapping.get(attack_type, "UNAUTHORIZED_DIGIVAULT_ACCESS")
-        triage_report = triage_engine.triage_incident(sentinel_type, {
-            "agent_id": "agent-defense",
-            "amount": amt,
-            "title": title,
-            "reason": reason,
-            "attack_type": attack_type
-        })
-
         c.execute("""
         INSERT INTO transactions (id, timestamp, agent_id, agent_name, action_type, recipient, amount, risk_score, status, reason, threat_type, payload_hash)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, (tx_id, timestamp, "agent-defense", "ELVA Sentinel", "PAYMENT", title, amt, 99, "BLOCKED", reason, "ATTACK", triage_report["evidence"]["payload_hash"][:16]))
+        """, (tx_id, timestamp, "agent-defense", "ELVA Sentinel", "PAYMENT", title, amt, 99, "BLOCKED", reason, "ATTACK", "hash-001"))
         conn.commit()
         conn.close()
 
@@ -457,22 +437,7 @@ class ElvaRequestHandler(http.server.SimpleHTTPRequestHandler):
             "is_warning": True,
             "speech_response": speech,
             "title": title,
-            "message": reason,
-            "sentinel_triage": triage_report
-        })
-
-    def handle_sentinel_triage(self, body=None):
-        body = body or {}
-        incident_type = body.get("incident_type", "PROMPT_INJECTION")
-        raw_event = body.get("raw_event", {
-            "agent_id": "downstream-financebot-4.1",
-            "threat": "indirect_invoice_injection",
-            "action": "TRANSFER_FUNDS"
-        })
-        report = triage_engine.triage_incident(incident_type, raw_event)
-        self.send_json({
-            "success": True,
-            "triage": report
+            "message": reason
         })
 
     def handle_wallet_reset(self):

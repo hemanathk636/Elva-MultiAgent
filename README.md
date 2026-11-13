@@ -52,13 +52,6 @@ Test ELVA's defense against 4 catastrophic AI failure modes with one click:
 * 🕵️ **Raw KYC Data Exfiltration:** Web scraper attempting to steal passport info.
 * 🎙️ **AI Deepfake Voice Scam:** Impersonator requesting an emergency wire transfer.
 
-### 6. 🛡️ Autonomous Security Triage & Forensic Audit Engine
-*ELVA's native on-device security triage and forensic investigation subsystem:*
-* **Autonomous SIEM & Swarm Triage:** Analyzes telemetry across all supervised AI agents (`FinanceBot`, `Voyager`, `Secretary LLM`) and classifies incidents against **MITRE ATT&CK** techniques.
-* **Read-Only Evidence Toolchain:** Enforces strict read-only boundaries on forensic tools and agent log traces, guaranteeing evidence integrity with cryptographic SHA-256 hashes.
-* **Zero-Hallucination Self-Correction Engine:** Evaluates proposed security findings against raw telemetry. Unsupported or hallucinated claims are purged with 0% confidence, ensuring containment decisions are backed by verified evidence.
-* **Automated Incident Response Runbooks:** Instantly generates structured, copyable IR runbooks mapped to ATT&CK tactics (e.g. `T1059.006 Indirect Prompt Injection`, `T1499.004 Application Loop Exhaustion`, `T1110.001 Acoustic Voice Impersonation`).
-
 ---
 
 ## 🛠️ How to Run the Prototype
