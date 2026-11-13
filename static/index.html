@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ELVA — Safe Pay & DigiLocker Guardian</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- ==================== SIGN IN MODAL ==================== -->
+  <div id="login-modal" class="auth-overlay hidden">
+    <div class="auth-card">
+      <div style="font-size: 2.2rem; margin-bottom: 0.5rem;">🔒</div>
+      <h2 style="font-size: 1.3rem; margin-bottom: 0.3rem;">Sign In to ELVA</h2>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.2rem;">
+        Your Safe Wallet & Personal DigiLocker
+      </p>
+
+      <form onsubmit="event.preventDefault(); submitLogin();">
+        <input type="text" id="login-username" class="auth-input" placeholder="Your Username (e.g. hemanath)" required>
+        <input type="password" id="login-password" class="auth-input" placeholder="Your Password (e.g. elva2026)" required>
+        <div id="login-error" class="auth-error hidden"></div>
+        <button type="submit" class="auth-btn">Open My Dashboard</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== DIGILOCKER OTP MODAL ==================== -->
+  <div id="otp-modal" class="auth-overlay hidden">
+    <div class="auth-card">
+      <div style="font-size: 2.2rem; margin-bottom: 0.5rem;">📲</div>
+      <h2 style="font-size: 1.25rem;">Enter 4-Digit OTP</h2>
+      <p id="otp-phone-label" style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+        Sent to your phone for verification
+      </p>
+
+      <div style="background:#e6f4ea; border:1px solid #ceead6; padding:0.6rem; border-radius:8px; font-size:0.8rem; color:#137333; margin-bottom:1rem;">
+        📩 <strong>Your OTP is: <span id="simulated-otp-code">----</span></strong>
+      </div>
+
+      <form onsubmit="event.preventDefault(); confirmVaultUpdateWithOtp();">
+        <input type="text" id="otp-input" class="auth-input" style="text-align:center; font-size:1.5rem; letter-spacing:8px; font-weight:800;" maxlength="4" placeholder="• • • •" required>
+        <div id="otp-error" class="auth-error hidden"></div>
+        <div style="display:flex; gap:0.6rem; margin-top:0.5rem;">
+          <button type="button" class="btn-big" style="background:#f1f3f4; color:#3c4043;" onclick="closeOtpModal()">Cancel</button>
+          <button type="submit" class="btn-big green">Verify & Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== LEFT CORNER SIDEBAR ==================== -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">🌱</div>
+      <div class="sidebar-title">
+        <h1>ELVA</h1>
+        <p>SAFE PAY & DIGILOCKER</p>
+      </div>
+    </div>
+
+    <!-- Navigation Menu (Click to switch pages) -->
+    <nav class="sidebar-nav">
+      <button class="nav-item active" data-page="page-pay" onclick="switchPage('page-pay')">
+        <span class="nav-icon">💳</span>
+        <span>Pay, Balance & History</span>
+      </button>
+
+      <button class="nav-item" data-page="page-digilocker" onclick="switchPage('page-digilocker')">
+        <span class="nav-icon">📁</span>
+        <span>DigiLocker</span>
+      </button>
+
+      <button class="nav-item" data-page="page-alerts" onclick="switchPage('page-alerts')">
+        <span class="nav-icon">🚨</span>
+        <span>Security Alerts</span>
+      </button>
+
+      <button class="nav-item" data-page="page-profile" onclick="switchPage('page-profile')">
+        <span class="nav-icon">👤</span>
+        <span>Personal Info</span>
+      </button>
+
+      <button class="nav-item" data-page="page-voice" onclick="switchPage('page-voice')">
+        <span class="nav-icon">🎙️</span>
+        <span>Voice Protection</span>
+      </button>
+
+      <button class="nav-item" data-page="page-settings" onclick="switchPage('page-settings')">
+        <span class="nav-icon">⚙️</span>
+        <span>Settings & Limits</span>
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-info-box" id="current-user-tag">
+        👤 User: Hemanath
+      </div>
+      <button class="btn-logout" onclick="logoutUser()">
+        🚪 Logout
+      </button>
+    </div>
+  </aside>
+
+  <!-- ==================== MAIN PAGE BY PAGE CONTENT ==================== -->
+  <main class="main-wrapper">
+
+    <!-- PAGE 1: PAY & BALANCE (GPay Style & AI Core) -->
+    <div id="page-pay" class="page-view active">
+      <!-- AI Status Banner -->
+      <div class="ai-header-strip">
+        <div id="holo-circle" class="ai-orb" onclick="elvaGreet()">ELVA</div>
+        <div class="ai-text">
+          <h3 id="holo-status">AI Guardian Active</h3>
+          <p id="speech-bubble">"Hello! Your wallet and DigiLocker documents are 100% safe."</p>
+        </div>
+      </div>
+
+      <!-- Balance Summary (Spent & Received) -->
+      <div class="balance-summary-card">
+        <div class="balance-main-box">
+          <small>Total Balance</small>
+          <h1 id="stat-balance">$14,250.00</h1>
+          <p>✓ All payments protected by ELVA</p>
+        </div>
+        <div class="money-stats-row">
+          <div class="money-stat-pill received">
+            <span class="stat-arrow">📥</span>
+            <div>
+              <small>Received</small>
+              <div class="stat-num" id="stat-received">+$500.00</div>
+            </div>
+          </div>
+          <div class="money-stat-pill spent">
+            <span class="stat-arrow">📤</span>
+            <div>
+              <small>Spent</small>
+              <div class="stat-num" id="stat-spent">-$42.50</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Transaction Enter Place -->
+      <div class="simple-enter-card">
+        <div style="font-size:1.15rem; font-weight:800; margin-bottom:0.3rem;">💳 Pay or Add Money:</div>
+        <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">Type who is this for, put amount, and tap Spent or Received.</div>
+
+        <div class="simple-input-row">
+          <input type="text" id="tx-title" class="giant-input" placeholder="Who is this for? (e.g. Milk Shop, Rent, Salary)" required>
+          <input type="number" id="tx-amount" class="giant-input amount" placeholder="$ Amount" step="0.01" min="0.01" required>
+        </div>
+
+        <!-- Chips -->
+        <div class="chip-row">
+          <small>Quick Select:</small>
+          <button type="button" class="amt-chip" onclick="setPresetAmt(10)">+$10</button>
+          <button type="button" class="amt-chip" onclick="setPresetAmt(20)">+$20</button>
+          <button type="button" class="amt-chip" onclick="setPresetAmt(50)">+$50</button>
+          <button type="button" class="amt-chip" onclick="setPresetAmt(100)">+$100</button>
+          <button type="button" class="amt-chip" onclick="setPresetAmt(500)">+$500</button>
+        </div>
+
+        <div class="big-buttons-row" style="margin-top:1rem;">
+          <button type="button" class="btn-big red" onclick="executeTx('DEBIT')">
+            <span>📤</span> Spent (Pay Money)
+          </button>
+          <button type="button" class="btn-big green" onclick="executeTx('CREDIT')">
+            <span>📥</span> Received (Add Money)
+          </button>
+          <button type="button" class="btn-big blue" onclick="simulateGPay()">
+            <span>📱</span> GPay Fast Pay
+          </button>
+        </div>
+      </div>
+
+      <!-- Horizontal Quick Buttons -->
+      <div class="horizontal-strip-card">
+        <div style="font-size:0.88rem; font-weight:700; margin-bottom:0.7rem;">⚡ 1-Tap Quick Pay & Add:</div>
+        <div class="horizontal-buttons-scroll">
+          <button class="h-btn" onclick="quickFill('Grocery Shopping', 25.00, 'DEBIT')">
+            <div class="h-icon">🛒</div>
+            <div><strong>Grocery</strong><br><span style="font-size:0.75rem; color:var(--text-muted);">Spent $25</span></div>
+          </button>
+          <button class="h-btn" onclick="quickFill('Electric Bill', 45.00, 'DEBIT')">
+            <div class="h-icon" style="background:#fef7e0;">💡</div>
+            <div><strong>Electricity</strong><br><span style="font-size:0.75rem; color:var(--text-muted);">Spent $45</span></div>
+          </button>
+          <button class="h-btn" onclick="quickFill('Salary Deposit', 500.00, 'CREDIT')">
+            <div class="h-icon" style="background:#e6f4ea;">💰</div>
+            <div><strong>Salary</strong><br><span style="font-size:0.75rem; color:var(--text-muted);">Received $500</span></div>
+          </button>
+          <button class="h-btn" onclick="quickFill('Mobile Recharge', 15.00, 'DEBIT')">
+            <div class="h-icon">📱</div>
+            <div><strong>Recharge</strong><br><span style="font-size:0.75rem; color:var(--text-muted);">Spent $15</span></div>
+          </button>
+          <button class="h-btn" onclick="quickFill('Travel Ticket', 150.00, 'DEBIT')">
+            <div class="h-icon" style="background:#f3e8fd;">✈️</div>
+            <div><strong>Travel</strong><br><span style="font-size:0.75rem; color:var(--text-muted);">Spent $150</span></div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Live Transaction History List (Directly on this same page!) -->
+      <div class="card-box" style="margin-top:1.5rem;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+          <h3 style="font-size:1.15rem; font-weight:800; color:var(--text-dark);">📜 Live Transactions (Spent & Received)</h3>
+          <span style="font-size:0.8rem; color:var(--text-muted);">Updates in real time</span>
+        </div>
+        <div class="tx-list" id="tx-list-container">
+          <!-- Populated via JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE 2: DIGILOCKER (ALL DETAILS DISPLAYED) -->
+    <div id="page-digilocker" class="page-view">
+      <div class="page-header-row">
+        <div class="page-title-box">
+          <h2>📁 DigiLocker Document Vault</h2>
+          <p>Your official government identity documents secured with Zero-Knowledge encryption.</p>
+        </div>
+        <span class="user-pill" style="color:var(--gpay-blue); font-weight:800;">🔒 OTP SECURED</span>
+      </div>
+
+      <!-- Add New Document Box -->
+      <div class="card-box" style="background:#fdfaf5; border-color:#ecdcc8;">
+        <h3 style="font-size:1.05rem; font-weight:800; color:#3e2723; margin-bottom:0.2rem;">➕ Add or Update DigiLocker Document</h3>
+        <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">Original documents stay locked. Outside AI only gets a secure dummy safe code.</p>
+
+        <form onsubmit="event.preventDefault(); initiateVaultUpdate();">
+          <div style="display:flex; gap:0.8rem; margin-bottom:0.7rem; flex-wrap:wrap;">
+            <select id="vault-doc-type" class="giant-input" style="flex:1; padding:0.7rem;">
+              <option value="AADHAAR">Aadhaar Card</option>
+              <option value="PASSPORT">Passport</option>
+              <option value="DRIVERS_LICENSE">Driver's License</option>
+              <option value="PAN_CARD">PAN Card</option>
+              <option value="HEALTH_ID">Digital Health Card</option>
+            </select>
+            <input type="text" id="vault-doc-name" class="giant-input" style="flex:1.4; padding:0.7rem;" placeholder="Card Title (e.g. My Personal ID)" required>
+          </div>
+          <div style="display:flex; gap:0.8rem; margin-bottom:0.7rem; flex-wrap:wrap;">
+            <input type="text" id="vault-holder-name" class="giant-input" style="flex:1; padding:0.7rem;" placeholder="Your Full Name" required>
+            <input type="text" id="vault-raw-number" class="giant-input" style="flex:1.4; padding:0.7rem;" placeholder="Document Number (e.g. 8921 4432 1092)" required>
+          </div>
+          <button type="submit" class="btn-big green" style="width:100%; border-radius:10px;">
+            📲 Send 4-Digit OTP & Save to DigiLocker
+          </button>
+        </form>
+      </div>
+
+      <!-- All Document Details Cards -->
+      <h3 style="font-size:1.1rem; font-weight:800; margin-bottom:0.8rem;">Verified Documents in Locker:</h3>
+      <div class="doc-cards-grid" id="vault-cards">
+        <!-- Populated via JS -->
+      </div>
+    </div>
+
+    <!-- PAGE 3: TRANSACTION HISTORY (FULL AUDIT) -->
+    <div id="page-history" class="page-view">
+      <div class="page-header-row">
+        <div class="page-title-box">
+          <h2>📜 Transaction History</h2>
+          <p>Complete record of all spent and received payments with security status.</p>
+        </div>
+        <button class="btn-icon" onclick="loadTransactions()">🔄 Refresh</button>
+      </div>
+
+      <div class="card-box">
+        <div class="tx-list" id="tx-list-container">
+          <!-- Populated via JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE 4: SECURITY ALERTS -->
+    <div id="page-alerts" class="page-view">
+      <div class="page-header-row">
+        <div class="page-title-box">
+          <h2>🚨 Security Alerts & Hazard Logs</h2>
+          <p>Real-time security logs when ELVA neutralizes suspicious AI requests or fake invoices.</p>
+        </div>
+        <button class="btn-icon" onclick="dismissAlert()">Dismiss Current Alert</button>
+      </div>
+
+      <div class="card-box">
+        <div class="alerts-container">
+          <div class="alert-card-item danger">
+            <span style="font-size:1.8rem;">💉</span>
+            <div>
+              <strong>Prompt Injection Threat Blocked</strong>
+              <p>An external invoice contained hidden text instructions trying to transfer $650.00 to an unknown shadow wallet. ELVA quarantined the request.</p>
+            </div>
+          </div>
+          <div class="alert-card-item warning">
+            <span style="font-size:1.8rem;">🔄</span>
+            <div>
+              <strong>Runaway Spending Loop Intercepted</strong>
+              <p>Automated travel agent attempted 6 repeated flight bookings in 45 seconds due to price fluctuations. Daily gate breaker halted all spending.</p>
+            </div>
+          </div>
+          <div class="alert-card-item info">
+            <span style="font-size:1.8rem;">🛡️</span>
+            <div>
+              <strong>DigiVault Zero-Knowledge Seal Active</strong>
+              <p>All 4 personal identity credentials are guarded on-device. No external cloud service has access to raw IDs.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Simulation Buttons -->
+        <div style="margin-top:1.5rem; border-top:1px solid var(--border-subtle); padding-top:1.2rem;">
+          <h4 style="font-size:0.95rem; font-weight:800; margin-bottom:0.6rem;">🧪 Test Hazard Alarms (Voice Alerts Trigger Here):</h4>
+          <div style="display:flex; gap:0.8rem; flex-wrap:wrap;">
+            <button class="threat-btn" style="flex:1;" onclick="triggerThreat('prompt_injection')">💉 Fake Bill Hack</button>
+            <button class="threat-btn" style="flex:1;" onclick="triggerThreat('runaway_loop')">🔄 Loop Overcharge</button>
+            <button class="threat-btn" style="flex:1;" onclick="triggerThreat('voice_clone')">🤖 Fake Voice Call</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE 5: PERSONAL INFORMATION -->
+    <div id="page-profile" class="page-view">
+      <div class="page-header-row">
+        <div class="page-title-box">
+          <h2>👤 Personal Information</h2>
+          <p>Authenticated user profile and encrypted device settings.</p>
+        </div>
+      </div>
+
+      <div class="card-box">
+        <div class="profile-info-grid">
+          <div class="info-field">
+            <label>Full Name</label>
+            <div>Hemanath K.</div>
+          </div>
+          <div class="info-field">
+            <label>Registered Phone (OTP Gateway)</label>
+            <div>+91 98765 43210</div>
+          </div>
+          <div class="info-field">
+            <label>Account Status</label>
+            <div style="color:var(--gpay-green);">● Active & Encrypted</div>
+          </div>
+          <div class="info-field">
+            <label>Security Level</label>
+            <div>Zero-Trust On-Device Enclave</div>
+          </div>
+          <div class="info-field">
+            <label>Storage Database</label>
+            <div>Local SQLite (elva_data.db)</div>
+          </div>
+          <div class="info-field">
+            <label>Network Mode</label>
+            <div>100% Offline (Localhost:8088)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE 6: VOICE PROTECTION (ANTI-DEEPFAKE) -->
+    <div id="page-voice" class="page-view">
+      <div class="page-header-row">
+        <div class="page-title-box">
+          <h2>🎙️ Future Voice Protection</h2>
+          <p>Acoustic micro-challenge engine to detect and block AI voice clones in emergency scams.</p>
+        </div>
+      </div>
+
+      <div class="card-box">
+        <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1.2rem;">
+          When an unauthorized caller or payment approval request comes in, ELVA checks glottal resonance frequencies to ensure it is a real human and not an AI voice clone.
+        </p>
+
+        <div style="display:flex; gap:0.8rem; flex-wrap:wrap;">
+          <button class="btn-big green" onclick="testVoiceAuth('simulate_human')">
+            <span>👤</span> Test Real Human Voice
+          </button>
+          <button class="btn-big red" onclick="testVoiceAuth('simulate_clone')">
+            <span>🤖</span> Test AI Voice Clone Attack
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE 7: SETTINGS & LIMITS -->
+    <div id="page-settings" class="page-view">
+      <div class="page-header-row">
+        <div class="page-title-box">
+          <h2>⚙️ Safety Settings & Daily Limits</h2>
+          <p>Customize your autonomous agent spend ceilings and circuit breakers.</p>
+        </div>
+      </div>
+
+      <div class="card-box">
+        <div class="profile-info-grid">
+          <div class="info-field">
+            <label>Daily Spending Gate Limit</label>
+            <div>$250.00 / day</div>
+          </div>
+          <div class="info-field">
+            <label>Circuit Breaker Status</label>
+            <div style="color:var(--gpay-green);">ARMED (Active Defense)</div>
+          </div>
+        </div>
+
+        <div style="margin-top:1.5rem;">
+          <button class="btn-big blue" onclick="resetLimits()">
+            🔄 Reset Daily Limit to $250.00
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
