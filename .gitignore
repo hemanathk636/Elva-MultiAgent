@@ -28,6 +28,16 @@ ENV/
 env/
 .venv/
 
+# Database & runtime logs
+*.db
+*.sqlite
+*.sqlite3
+logs/
+*.log
+
+# Large static frame assets
+frontend/frames/
+
 # Environment variables
 .env
 .env.local
