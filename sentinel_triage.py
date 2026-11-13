@@ -1,7 +1,6 @@
 """
-ELVA Sentinel Zero Triage & Forensic Analysis Engine
-Inspired by Kushal Soni's Sentinel Zero (kushal-soni-official/sentinel-zero):
-Autonomous AI Security Triage Agent with Self-Correction, Read-Only Evidence Toolchains,
+ELVA Autonomous Security Triage & Forensic Analysis Engine
+Native Zero-Trust Security Triage Agent with Self-Correction, Read-Only Evidence Toolchains,
 and MITRE ATT&CK-mapped Incident Response Runbook Generation.
 """
 import hashlib
@@ -196,7 +195,7 @@ class SentinelTriageEngine:
             "4. **Audit Trail Archival:** Forensic log persisted to immutable local ledger.",
             "",
             "---",
-            "*ELVA x Sentinel Zero Autonomous Security Architecture*"
+            "*ELVA Autonomous Multi-Agent Zero-Trust Architecture*"
         ])
 
         return "\n".join(lines)

@@ -86,7 +86,7 @@ def test_full_system():
     assert handler.response_data["is_warning"] is True
     print("[PASS] Threat / Limit Intercept: Voice Alert Triggered Appropriately")
 
-    # 7. Test Sentinel-Zero Triage & Self-Correction Engine
+    # 7. Test Autonomous Security Triage & Self-Correction Engine
     server.ElvaRequestHandler.handle_sentinel_triage(handler, {
         "incident_type": "PROMPT_INJECTION",
         "raw_event": {
@@ -101,9 +101,9 @@ def test_full_system():
     assert "mitre_attack" in triage_data
     assert triage_data["self_correction_audit"]["overall_confidence"] > 0
     assert "ir_runbook" in triage_data
-    print("[PASS] Sentinel-Zero Autonomous Security Triage & Self-Correction Engine Validated")
+    print("[PASS] Autonomous Security Triage & Self-Correction Engine Validated")
 
-    print("\n[ALL AUTHENTICATION, DIGIVAULT & SENTINEL-ZERO TESTS PASSED WITH 100% SUCCESS]")
+    print("\n[ALL AUTHENTICATION, DIGIVAULT & SECURITY TRIAGE TESTS PASSED WITH 100% SUCCESS]")
 
 if __name__ == "__main__":
     test_full_system()
